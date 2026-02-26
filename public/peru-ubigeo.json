@@ -1,0 +1,95 @@
+[
+  {
+    "nombre": "Lima",
+    "provincias": [
+      {
+        "nombre": "Lima",
+        "distritos": [
+          "Miraflores",
+          "San Isidro",
+          "Santiago de Surco",
+          "San Borja",
+          "La Molina",
+          "Lince",
+          "Magdalena",
+          "Lima Centro"
+        ]
+      },
+      {
+        "nombre": "Cañete",
+        "distritos": ["San Vicente", "Asia", "Mala", "Lunahuaná"]
+      },
+      {
+        "nombre": "Callao",
+        "distritos": ["Callao", "Bellavista", "La Punta", "Ventanilla"]
+      }
+    ]
+  },
+  {
+    "nombre": "Arequipa",
+    "provincias": [
+      {
+        "nombre": "Arequipa",
+        "distritos": [
+          "Arequipa",
+          "Cayma",
+          "Yanahuara",
+          "Selva Alegre",
+          "José Luis Bustamante y Rivero"
+        ]
+      },
+      {
+        "nombre": "Islay",
+        "distritos": ["Mollendo", "Mejía"]
+      }
+    ]
+  },
+  {
+    "nombre": "Cusco",
+    "provincias": [
+      {
+        "nombre": "Cusco",
+        "distritos": ["Cusco", "San Jerónimo", "San Sebastián", "Wanchaq"]
+      },
+      {
+        "nombre": "Urubamba",
+        "distritos": ["Urubamba", "Ollantaytambo", "Machupicchu"]
+      }
+    ]
+  },
+  {
+    "nombre": "Junín",
+    "provincias": [
+      {
+        "nombre": "Huancayo",
+        "distritos": ["Huancayo", "El Tambo", "Chilca"]
+      },
+      {
+        "nombre": "Chanchamayo",
+        "distritos": ["La Merced", "San Ramón"]
+      }
+    ]
+  },
+  {
+    "nombre": "Ancash",
+    "provincias": [
+      {
+        "nombre": "Huaraz",
+        "distritos": ["Huaraz", "Independencia"]
+      },
+      {
+        "nombre": "Santa",
+        "distritos": ["Chimbote", "Nuevo Chimbote"]
+      }
+    ]
+  },
+  {
+    "nombre": "La Libertad",
+    "provincias": [
+      {
+        "nombre": "Trujillo",
+        "distritos": ["Trujillo", "Víctor Larco Herrera", "Huanchaco", "Moche"]
+      }
+    ]
+  }
+]

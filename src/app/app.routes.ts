@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login';
 import { DashboardComponent } from './pages/dashboard/dashboard';
@@ -10,6 +12,7 @@ import { ReportesComponent } from './features/reportes/reportes';
 import { FacturacionComponent } from './features/facturacion/facturacion';
 import { PerfilComponent } from './features/perfil/perfil';
 import { RegistroComponent } from './auth/registro/registro';
+import { MisDireccionesComponent } from './features/mis-direcciones/mis-direcciones';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, pathMatch: 'full' },
@@ -18,7 +21,7 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'order-create', component: OrderCreateComponent, canActivate: [authGuard] },
   { path: 'nueva-orden', redirectTo: 'order-create', pathMatch: 'full' },
-
+  { path: 'mis-direcciones', component: MisDireccionesComponent, canActivate: [authGuard] },
   { path: 'gestion-ordenes', component: GestionOrdenesComponent, canActivate: [authGuard] },
   { path: 'reportes', component: ReportesComponent, canActivate: [authGuard] },
   { path: 'facturacion', component: FacturacionComponent, canActivate: [authGuard] },
@@ -26,3 +29,9 @@ export const routes: Routes = [
 
   { path: '**', redirectTo: '' },
 ];
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(), 
+  ],
+};
