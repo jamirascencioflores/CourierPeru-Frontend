@@ -44,6 +44,36 @@
             <input
               type="text"
               class="form-control"
+              id="dni"
+              placeholder="DNI"
+              [(ngModel)]="user.dni"
+              (ngModelChange)="onDniChange($event)"
+              name="dni"
+              maxlength="8"
+              required
+            />
+            <label for="dni"><i class="bi bi-card-text me-2"></i>DNI (8 dígitos)</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              class="form-control bg-light"
+              id="nombreCompleto"
+              placeholder="Nombres y Apellidos"
+              [(ngModel)]="user.nombreCompleto"
+              name="nombreCompleto"
+              readonly
+            />
+            <label for="nombreCompleto"
+              ><i class="bi bi-person-vcard me-2"></i>Nombres y Apellidos</label
+            >
+          </div>
+
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              class="form-control"
               id="username"
               placeholder="Usuario"
               [(ngModel)]="user.userName"

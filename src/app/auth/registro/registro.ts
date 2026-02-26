@@ -1,33 +1,55 @@
 import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router'; // ✨ Necesario para routerLink
-import { CommonModule } from '@angular/common'; // ✨ Necesario para *ngIf y ngClass
-import { FormsModule } from '@angular/forms'; // ✨ Necesario para [(ngModel)]
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { ThemeService } from '../../services/theme'; // Asegúrate de que esta ruta sea correcta
+import { ThemeService } from '../../services/theme';
+import { OrderService } from '../../services/order'; // ✨ 1. Importar
 
 @Component({
   selector: 'app-registro',
-  standalone: true, // ✨ Le dice a Angular que este componente importa sus propias cosas
-  imports: [CommonModule, FormsModule, RouterModule], // ✨ Aquí inyectamos los módulos
-  templateUrl: './registro.html', // (Asegúrate de que coincida con el nombre de tu archivo html)
-  styleUrls: ['./registro.css'], // (Asegúrate de que coincida con el nombre de tu archivo css)
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './registro.html',
 })
 export class RegistroComponent {
+  // ✨ 2. Asegúrate de que tu objeto user tenga dni y nombreCompleto
   user = {
     userName: '',
     email: '',
     password: '',
+    dni: '',
+    nombreCompleto: '',
   };
 
   isSubmitting = false;
-  errorMessage = '';
   successMessage = '';
+  errorMessage = '';
 
   constructor(
     private authService: AuthService,
+    private orderService: OrderService, // ✨ 3. Inyectar
     private router: Router,
     public themeService: ThemeService,
   ) {}
+
+  // ✨ 4. Función que se dispara al escribir el DNI
+  onDniChange(dni: string) {
+    if (dni && dni.length === 8) {
+      this.orderService.consultarClienteDni(dni).subscribe({
+        next: (nombre) => {
+          if (nombre !== 'No Encontrado' && nombre !== 'null null null') {
+            this.user.nombreCompleto = nombre;
+          } else {
+            this.user.nombreCompleto = '';
+          }
+        },
+        error: () => (this.user.nombreCompleto = ''),
+      });
+    } else {
+      this.user.nombreCompleto = '';
+    }
+  }
 
   onRegister() {
     this.isSubmitting = true;
@@ -35,13 +57,12 @@ export class RegistroComponent {
     this.successMessage = '';
 
     this.authService.register(this.user).subscribe({
-      next: (res) => {
-        this.successMessage = '¡Cuenta creada con éxito! Redirigiendo al login...';
-        this.isSubmitting = false;
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+      next: () => {
+        this.successMessage = 'Registro exitoso. Redirigiendo...';
+        setTimeout(() => this.router.navigate(['/login']), 1500);
       },
       error: (err) => {
-        this.errorMessage = 'Hubo un error al registrar. Intenta con otro usuario o correo.';
+        this.errorMessage = err.error || 'Error al registrar la cuenta';
         this.isSubmitting = false;
       },
     });
