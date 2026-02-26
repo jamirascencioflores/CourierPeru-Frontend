@@ -54,19 +54,46 @@ export class GestionOrdenesComponent implements OnInit {
     });
   }
 
-  avanzarEstado(id: number) {
-    if (confirm('¿Estás seguro de avanzar el estado de esta orden? Se notificará al cliente.')) {
-      this.orderService.avanzarEstado(id).subscribe({
-        // ✨ Agregamos ": any" a ordenActualizada
+  avanzarEstado(order: any) {
+    // Definimos la lógica de avance de estados
+    let nuevoEstado = 'EN_RUTA';
+    if (order.estado === 'EN_RUTA') nuevoEstado = 'ENTREGADO';
+    if (order.estado === 'ENTREGADO') {
+      alert('Esta orden ya ha sido entregada.');
+      return;
+    }
+
+    if (confirm(`¿Estás seguro de cambiar el estado a ${nuevoEstado}? Se notificará al cliente.`)) {
+      // ✨ Usamos updateEstado en lugar de avanzarEstado
+      this.orderService.updateEstado(order.id, nuevoEstado).subscribe({
         next: (ordenActualizada: any) => {
-          const listaActualizada = this.ordenes().map((o) => (o.id === id ? ordenActualizada : o));
+          // Actualizamos la lista usando signals o arreglos normales según tu código
+          const listaActualizada = this.ordenes().map((o: any) =>
+            o.id === order.id ? ordenActualizada : o,
+          );
           this.ordenes.set(listaActualizada);
           alert('✅ Estado actualizado y notificación enviada.');
         },
-        // ✨ Agregamos ": any" a err
         error: (err: any) => {
           console.error(err);
-          alert('❌ Hubo un error al actualizar el estado.');
+          alert('❌ Hubo un error al actualizar el estado: ' + (err.error || 'Acceso denegado'));
+        },
+      });
+    }
+  }
+
+  // ✨ Tip extra: Agrega el método para eliminar aquí también si lo necesitas
+  eliminarOrden(id: number) {
+    if (confirm('¿Estás seguro de eliminar esta orden permanentemente?')) {
+      this.orderService.eliminarOrden(id).subscribe({
+        next: () => {
+          const listaActualizada = this.ordenes().filter((o: any) => o.id !== id);
+          this.ordenes.set(listaActualizada);
+          alert('✅ Orden eliminada correctamente.');
+        },
+        error: (err: any) => {
+          console.error(err);
+          alert('❌ No se pudo eliminar la orden.');
         },
       });
     }

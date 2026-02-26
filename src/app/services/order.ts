@@ -10,7 +10,6 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  // Función ayudante para crear la cabecera con el token
   private getHeaders(): HttpHeaders {
     let headers = new HttpHeaders();
     if (isPlatformBrowser(this.platformId)) {
@@ -23,29 +22,36 @@ export class OrderService {
   }
 
   getRecentOrders(): Observable<any[]> {
-    // Mandamos los headers en la petición GET
     return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
   crearOrden(orden: any): Observable<any> {
-    // Mandamos los headers en la petición POST también
     return this.http.post(this.apiUrl, orden, { headers: this.getHeaders() });
   }
 
-  avanzarEstado(id: number): Observable<any> {
-    // Asegúrate de que this.apiUrl sea 'http://localhost:8081/api/orders'
-    return this.http.put(`${this.apiUrl}/${id}/estado`, {});
+  // ✨ CORREGIDO: Ya tiene las cabeceras para que no te bote el 401
+  obtenerTodasLasOrdenes(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl, { headers: this.getHeaders() });
+  }
+
+  // ✨ ACTUALIZADO: Para cambiar a cualquier estado (PENDIENTE, EN_RUTA, etc.)
+  updateEstado(id: number, estado: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/estado`, estado, { headers: this.getHeaders() });
+  }
+
+  // ✨ NUEVO: El método para cancelar/eliminar la orden
+  eliminarOrden(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
   rastrearPedido(codigo: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/tracking/${codigo}`);
-  }
-
-  obtenerTodasLasOrdenes(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl); // Apunta a http://localhost:8080/api/orders
+    return this.http.get(`${this.apiUrl}/tracking/${codigo}`, { headers: this.getHeaders() });
   }
 
   consultarClienteDni(dni: string) {
-    return this.http.get(`${this.apiUrl}/cliente/${dni}`, { responseType: 'text' });
+    return this.http.get(`${this.apiUrl}/cliente/${dni}`, {
+      responseType: 'text',
+      headers: this.getHeaders(),
+    });
   }
 }
