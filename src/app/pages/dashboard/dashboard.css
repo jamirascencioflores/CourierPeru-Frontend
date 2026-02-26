@@ -1,0 +1,190 @@
+/* Layout Principal */
+#wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+/* Sidebar */
+#sidebar-wrapper {
+  min-width: 280px;
+  max-width: 280px;
+  background-color: var(--surface);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  color: var(--text);
+}
+
+.sidebar-heading {
+  padding: 1.5rem 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Lista de navegación */
+.list-group {
+  flex-grow: 1;
+  background: transparent;
+}
+
+.list-group-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px;
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.list-group-item:hover,
+.list-group-item.hover-light:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.list-group-item.active {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border-right: 4px solid #fff;
+}
+
+/* Botón de Cerrar Sesión al fondo */
+.logout-container {
+  margin-top: auto;
+  padding-bottom: 20px;
+}
+.logout-container button {
+  width: 100%;
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0;
+  background: transparent;
+  color: var(--danger);
+}
+
+/* Área de Contenido Principal */
+#page-content-wrapper {
+  flex: 1;
+  background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+}
+
+/* Navbar superior coherente (la clase bg-body viene del HTML) */
+.navbar.bg-body {
+  background-color: var(--bg) !important;
+  color: var(--text);
+  border-color: var(--border) !important;
+}
+
+/* Stats cards */
+.stats-card {
+  border-radius: 16px !important;
+  transition: transform 0.2s;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Avatar */
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon box con color actual */
+.icon-box {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* Botón icono */
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  color: var(--text);
+}
+.btn-icon:hover {
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+}
+
+/* Tamaño fuente utilitario */
+.x-small {
+  font-size: 0.75rem;
+}
+
+/* Cards y tablas dentro del contenido (por si no usan utilidades globales) */
+.card {
+  background-color: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.card-header {
+  background-color: var(--card);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Tablas */
+.table {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.table thead th {
+  color: var(--text-muted);
+  border-bottom-color: var(--border);
+}
+.table tbody tr + tr {
+  border-top: 1px solid var(--border);
+}
+.table-hover tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+/* Badges de estado – mantienen contraste en ambos temas */
+.badge.border {
+  border-color: currentColor !important;
+}
+
+/* === FIX SIDEBAR EN LIGHT === */
+:root[data-bs-theme='light'] #sidebar-wrapper .list-group-item {
+  color: var(--text) !important;
+}
+
+/* === FIX ENVÍOS RECIENTES EN DARK === */
+:root[data-bs-theme='dark'] .card-header,
+:root[data-bs-theme='dark'] .table thead {
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* dashboard.css */
+#page-content-wrapper app-footer .landing-footer {
+  margin-top: 0.75rem; /* o 1rem si lo prefieres */
+}

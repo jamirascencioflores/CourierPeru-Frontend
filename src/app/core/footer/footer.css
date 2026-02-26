@@ -1,0 +1,26 @@
+.landing-footer {
+  background: var(--surface);
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+
+.hr-base {
+  border-color: var(--border) !important;
+  opacity: 0.6;
+}
+
+.link-muted {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.link-muted:hover {
+  color: var(--primary);
+}
+
+.icon-link {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.icon-link:hover {
+  color: var(--primary);
+}

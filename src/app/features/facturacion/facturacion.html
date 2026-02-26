@@ -1,0 +1,110 @@
+<div class="container py-4">
+  <div class="mb-4 d-print-none">
+    <a routerLink="/dashboard" class="btn btn-link text-decoration-none p-0 text-secondary">
+      <i class="bi bi-arrow-left-circle fs-4 me-2"></i>
+      <span class="fw-semibold">Regresar al Inicio</span>
+    </a>
+  </div>
+
+  <div *ngIf="!ordenSeleccionada()" class="d-print-none">
+    <h2 class="fw-bold text-primary mb-4"><i class="bi bi-receipt me-2"></i> Facturación</h2>
+    <div class="card border-0 shadow-sm rounded-4 p-3">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Tracking</th>
+            <th>Cliente</th>
+            <th>Monto</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let orden of ordenes()">
+            <td class="fw-bold text-primary">{{ orden.codigoRastreo }}</td>
+            <td>
+              {{ orden.nombreCompleto || 'Consumidor Final' }} <br />
+              <small class="text-muted">DNI: {{ orden.dniCliente }}</small>
+            </td>
+            <td class="fw-semibold">S/ {{ orden.costoEnvio }}</td>
+            <td>
+              <button class="btn btn-sm btn-dark rounded-pill" (click)="verBoleta(orden)">
+                <i class="bi bi-file-earmark-text me-1"></i> Generar Boleta
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="ordenSeleccionada()" class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between mb-3 d-print-none">
+        <button class="btn btn-secondary shadow-sm" (click)="cerrarBoleta()">
+          <i class="bi bi-x-circle me-1"></i> Cancelar
+        </button>
+        <button class="btn btn-primary shadow-sm fw-bold" (click)="imprimir()">
+          <i class="bi bi-printer me-1"></i> Imprimir Comprobante
+        </button>
+      </div>
+
+      <div class="card border-2 border-dark rounded-0 p-5 shadow bg-white text-dark">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-uppercase mb-0">Courier Express</h2>
+          <p class="mb-0">RUC: 20123456789</p>
+          <p>Av. Principal 123, Lima, Perú</p>
+          <h4 class="fw-bold border border-dark p-2 mt-3 d-inline-block">
+            BOLETA ELECTRÓNICA <br />
+            <span class="text-muted fs-6">Nro. B001-{{ ordenSeleccionada().id }}</span>
+          </h4>
+        </div>
+
+        <div class="mb-4">
+          <p class="mb-1">
+            <strong>Fecha:</strong>
+            {{ ordenSeleccionada().fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="mb-1">
+            <strong>Cliente:</strong> {{ ordenSeleccionada().nombreCompleto || 'Consumidor Final' }}
+          </p>
+          <p class="mb-1"><strong>DNI:</strong> {{ ordenSeleccionada().dniCliente }}</p>
+          <p class="mb-1"><strong>Tracking ID:</strong> {{ ordenSeleccionada().codigoRastreo }}</p>
+        </div>
+
+        <table class="table table-bordered border-dark mt-4">
+          <thead class="table-light">
+            <tr>
+              <th>Descripción del Servicio</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                Servicio de encomienda <br />
+                <small class="text-muted">Origen: {{ ordenSeleccionada().direccionRecojo }}</small
+                ><br />
+                <small class="text-muted"
+                  >Destino: {{ ordenSeleccionada().direccionEntrega }}</small
+                >
+              </td>
+              <td class="text-end fw-semibold align-middle">
+                S/ {{ ordenSeleccionada().costoEnvio }}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="text-end fw-bold">TOTAL A PAGAR:</td>
+              <td class="text-end fw-bold fs-5">S/ {{ ordenSeleccionada().costoEnvio }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="text-center mt-5">
+          <p class="small text-muted">Gracias por confiar en nuestros servicios.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

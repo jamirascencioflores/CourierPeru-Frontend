@@ -1,0 +1,16 @@
+.avatar-circle {
+  transition: transform 0.3s ease;
+  cursor: default;
+}
+
+.avatar-circle:hover {
+  transform: scale(1.05);
+}
+
+.card {
+  transition: all 0.3s ease-in-out;
+}
+
+.form-label {
+  letter-spacing: 0.5px;
+}

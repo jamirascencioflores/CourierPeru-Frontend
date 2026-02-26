@@ -1,0 +1,129 @@
+<div class="container py-5">
+  <div class="mb-4 d-print-none">
+    <a routerLink="/dashboard" class="btn btn-link text-decoration-none p-0 text-secondary">
+      <i class="bi bi-arrow-left-circle fs-4 me-2"></i>
+      <span class="fw-semibold">Regresar al panel</span>
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div
+        class="card border-0 shadow-sm rounded-4 h-100"
+        [ngClass]="
+          themeService.isDark() ? 'bg-dark text-light border border-secondary' : 'bg-white'
+        "
+      >
+        <div class="card-body text-center p-5">
+          <div class="position-relative d-inline-block mb-4">
+            <div
+              class="avatar-circle bg-primary text-white shadow-lg d-flex align-items-center justify-content-center mx-auto"
+              style="
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                font-size: 3.5rem;
+                font-weight: 600;
+              "
+            >
+              {{
+                userProfile?.nombreCompleto?.charAt(0).toUpperCase() ||
+                  userProfile?.userName?.charAt(0).toUpperCase()
+              }}
+            </div>
+          </div>
+
+          <h4 class="fw-bold mb-1">{{ userProfile?.nombreCompleto || userProfile?.userName }}</h4>
+          <p class="text-muted small mb-0">
+            <span
+              class="badge"
+              [ngClass]="
+                userProfile?.role === 'ADMIN'
+                  ? 'bg-danger-subtle text-danger'
+                  : 'bg-primary-subtle text-primary'
+              "
+            >
+              {{ userProfile?.role === 'ADMIN' ? 'Administrador' : 'Cliente Courier' }}
+            </span>
+          </p>
+
+          <div class="d-grid gap-2 mt-4">
+            <div
+              class="p-3 rounded-3 bg-opacity-10"
+              [ngClass]="themeService.isDark() ? 'bg-info text-info' : 'bg-info text-dark'"
+            >
+              <small class="d-block fw-bold text-uppercase" style="font-size: 0.7rem"
+                >Estado de cuenta</small
+              >
+              <i class="bi bi-patch-check-fill me-1"></i> Verificada
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div
+        class="card border-0 shadow-sm rounded-4"
+        [ngClass]="
+          themeService.isDark() ? 'bg-dark text-light border border-secondary' : 'bg-white'
+        "
+      >
+        <div class="card-header bg-transparent border-bottom p-4">
+          <h5 class="fw-bold mb-0">Información del Usuario</h5>
+        </div>
+        <div class="card-body p-4 p-md-5">
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoading && userProfile" class="row g-4">
+            <div class="col-md-12">
+              <label class="form-label text-muted small fw-bold">NOMBRES Y APELLIDOS</label>
+              <div
+                class="p-3 rounded-3 border d-flex align-items-center"
+                [ngClass]="themeService.isDark() ? 'bg-black border-secondary' : 'bg-light'"
+              >
+                <i class="bi bi-person-badge me-3 text-primary fs-4"></i>
+                <span class="fs-5">{{ userProfile.nombreCompleto || 'No registrado' }}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted small fw-bold">ID DE ACCESO (USUARIO)</label>
+              <div
+                class="p-3 rounded-3 border"
+                [ngClass]="themeService.isDark() ? 'bg-black border-secondary' : 'bg-light'"
+              >
+                <i class="bi bi-at me-2 text-primary"></i>
+                {{ userProfile.userName }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label text-muted small fw-bold">CORREO ELECTRÓNICO</label>
+              <div
+                class="p-3 rounded-3 border"
+                [ngClass]="themeService.isDark() ? 'bg-black border-secondary' : 'bg-light'"
+              >
+                <i class="bi bi-envelope me-2 text-primary"></i>
+                {{ userProfile.email }}
+              </div>
+            </div>
+
+            <div class="col-md-12 mt-4">
+              <div
+                class="p-3 rounded-4 border border-dashed text-center"
+                [ngClass]="themeService.isDark() ? 'border-secondary' : 'bg-light'"
+              >
+                <p class="small text-muted mb-0">
+                  Estás autenticado con el rol de <strong>{{ userProfile.role }}</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

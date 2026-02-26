@@ -1,0 +1,110 @@
+<div class="container-fluid min-vh-100 d-flex p-0">
+  <div class="row g-0 flex-fill">
+    <div
+      class="col-lg-6 d-none d-lg-block bg-image position-relative"
+      style="
+        background-image: url('assets/images/delivery-bg.jpg');
+        background-size: cover;
+        background-position: center;
+      "
+    >
+      <div
+        class="overlay d-flex flex-column justify-content-center h-100 text-white p-5"
+        style="background: rgba(0, 0, 0, 0.6)"
+      >
+        <h2 class="display-4 fw-bold mb-3">Únete a la Red</h2>
+        <p class="lead">
+          Crea tu cuenta gratis y empieza a enviar y rastrear tus paquetes a todo el Perú en
+          segundos.
+        </p>
+      </div>
+    </div>
+
+    <div class="position-absolute top-0 end-0 p-4">
+      <button class="btn btn-link nav-link" (click)="themeService.toggleTheme()">
+        <i
+          class="bi fs-4"
+          [ngClass]="
+            themeService.isDark() ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-dark'
+          "
+        ></i>
+      </button>
+    </div>
+
+    <div class="col-lg-6 d-flex align-items-center justify-content-center bg-body">
+      <div class="login-wrapper w-100 p-4 p-md-5" style="max-width: 500px">
+        <div class="mb-5 text-center">
+          <i class="bi bi-person-plus-fill text-primary fs-1 mb-3"></i>
+          <h2 class="fw-bold">Crear Cuenta</h2>
+          <p class="text-secondary">Completa tus datos para registrarte.</p>
+        </div>
+
+        <form (ngSubmit)="onRegister()">
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              placeholder="Usuario"
+              [(ngModel)]="user.userName"
+              name="userName"
+              required
+            />
+            <label for="username"><i class="bi bi-person me-2"></i>Nombre de Usuario</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              placeholder="Correo electrónico"
+              [(ngModel)]="user.email"
+              name="email"
+              required
+            />
+            <label for="email"><i class="bi bi-envelope me-2"></i>Correo Electrónico</label>
+          </div>
+
+          <div class="form-floating mb-4">
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Contraseña"
+              [(ngModel)]="user.password"
+              name="password"
+              required
+            />
+            <label for="password"><i class="bi bi-lock me-2"></i>Contraseña</label>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg py-3 rounded-3 fw-semibold shadow-sm"
+              [disabled]="isSubmitting"
+            >
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isSubmitting ? 'Registrando...' : 'Registrarme' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-4">
+          <span class="text-secondary">¿Ya tienes una cuenta? </span>
+          <a routerLink="/login" class="text-primary fw-bold text-decoration-none"
+            >Inicia sesión aquí</a
+          >
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success mt-4">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger mt-4">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+/* ============ ESTILOS PROFESIONALES ============ */
+
+/* 1. Hero Section con Imagen de Fondo */
+.hero-section {
+  min-height: 90vh; /* Un poco menos de pantalla completa */
+  padding-top: 100px;
+  /* Truco Pro: Ponemos un degradado oscuro SOBRE una imagen real */
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)),
+    url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Efecto Parallax al hacer scroll */
+  color: white; /* Texto blanco forzado por el fondo oscuro */
+}
+
+/* Ajuste del texto principal para que resalte */
+.hero-section h1 {
+  font-weight: 700;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* El texto secundario un poco más claro */
+.hero-section .lead {
+  color: rgba(255, 255, 255, 0.8) !important; /* Sobreescribimos Bootstrap */
+}
+
+/* 2. Navbar Transparente */
+.navbar {
+  transition: background-color 0.3s ease;
+}
+/* Forzamos navbar oscura al inicio porque el fondo es oscuro */
+.navbar:not(.scrolled) {
+  --bs-navbar-color: rgba(255, 255, 255, 0.9);
+  --bs-navbar-hover-color: white;
+}
+
+/* 3. Tarjetas y Secciones */
+.py-6 {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.hover-effect {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.hover-effect:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.1) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.icon-box {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Sutil gradiente en los iconos */
+  background: linear-gradient(135deg, var(--bs-primary-bg-subtle), white);
+}
+
+/* ============ AJUSTES MODO OSCURO ============ */
+/* Cuando está en modo oscuro, el fondo de la sección de abajo cambia */
+[data-bs-theme='dark'] section.py-5 {
+  background-color: #0f172a; /* Un azul oscuro muy "tech" */
+}
+
+[data-bs-theme='dark'] .hover-effect {
+  background-color: #1e293b; /* Tarjetas oscuras */
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+[data-bs-theme='dark'] .icon-box {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.2), transparent);
+}
+
+/* Footer del landing */
+.landing-footer {
+  background: var(--surface);
+  color: var(--text);
+  border-top: 1px solid var(--border);
+}
+
+/* Separador coherente en ambos temas */
+.hr-base {
+  border-color: var(--border) !important;
+  opacity: 0.6;
+}
+
+/* Links del footer */
+.link-muted {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.link-muted:hover {
+  color: var(--primary);
+}
+
+/* Iconos sociales */
+.icon-link {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.icon-link:hover {
+  color: var(--primary);
+}

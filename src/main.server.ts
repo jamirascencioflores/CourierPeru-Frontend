@@ -1,8 +1,13 @@
-import { BootstrapContext, bootstrapApplication } from '@angular/platform-browser';
-import { App } from './app/app';
-import { config } from './app/app.config.server';
+import { bootstrapApplication, BootstrapContext } from '@angular/platform-browser';
+import { AppComponent } from './app/app';
+import { appConfig } from './app/app.config';
+import { provideServerRendering } from '@angular/platform-server';
+import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 
-const bootstrap = (context: BootstrapContext) =>
-    bootstrapApplication(App, config, context);
+const serverConfig: ApplicationConfig = mergeApplicationConfig(appConfig, {
+  providers: [provideServerRendering()],
+});
 
-export default bootstrap;
+export default function bootstrap(context: BootstrapContext) {
+  return bootstrapApplication(AppComponent, serverConfig, context);
+}

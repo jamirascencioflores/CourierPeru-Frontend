@@ -1,0 +1,257 @@
+<div class="d-flex" id="wrapper">
+  <div id="sidebar-wrapper" class="text-base">
+    <div class="sidebar-heading text-center fw-bold border-bottom border-secondary">
+      <i class="bi bi-box-seam-fill text-primary"></i> Courier<span class="text-primary">Perú</span>
+    </div>
+
+    <div class="list-group list-group-flush my-3">
+      <a
+        routerLink="/dashboard"
+        class="list-group-item list-group-item-action bg-transparent active"
+      >
+        <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+      </a>
+
+      <ng-container
+        *ngIf="userRole === 'CLIENTE' || userRole === 'USER' || userRole === 'ROLE_USER'"
+      >
+        <a
+          routerLink="/nueva-orden"
+          class="list-group-item list-group-item-action bg-transparent hover-light"
+        >
+          <i class="bi bi-truck"></i> <span>Solicitar Recojo</span>
+        </a>
+        <a
+          routerLink="/dashboard"
+          class="list-group-item list-group-item-action bg-transparent hover-light"
+        >
+          <i class="bi bi-geo-alt"></i> <span>Mis Direcciones</span>
+        </a>
+      </ng-container>
+
+      <ng-container *ngIf="userRole === 'ADMIN' || userRole === 'ROLE_ADMIN'">
+        <a
+          routerLink="/nueva-orden"
+          class="list-group-item list-group-item-action bg-transparent hover-light"
+        >
+          <i class="bi bi-plus-circle"></i> <span>Nueva Orden (Agencia)</span>
+        </a>
+        <a
+          routerLink="/gestion-ordenes"
+          class="list-group-item list-group-item-action bg-transparent hover-light"
+        >
+          <i class="bi bi-boxes"></i> <span>Gestión de Órdenes</span>
+        </a>
+        <a
+          routerLink="/reportes"
+          class="list-group-item list-group-item-action bg-transparent hover-light"
+        >
+          <i class="bi bi-bar-chart-fill"></i> <span>Reportes Globales</span>
+        </a>
+      </ng-container>
+
+      <a
+        routerLink="/facturacion"
+        class="list-group-item list-group-item-action bg-transparent hover-light"
+      >
+        <i class="bi bi-receipt"></i> <span>Facturación</span>
+      </a>
+      <a
+        routerLink="/perfil"
+        class="list-group-item list-group-item-action bg-transparent hover-light"
+      >
+        <i class="bi bi-person-gear"></i> <span>Perfil</span>
+      </a>
+    </div>
+
+    <div class="logout-container">
+      <button
+        (click)="logout()"
+        class="list-group-item list-group-item-action bg-transparent text-danger pointer"
+      >
+        <i class="bi bi-box-arrow-left"></i> <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="page-content-wrapper" class="d-flex flex-column">
+    <nav class="navbar navbar-expand-lg border-bottom shadow-sm px-4 py-2 bg-body">
+      <div class="d-flex align-items-center justify-content-between w-100">
+        <h4 class="m-0 fw-bold text-primary">Resumen General</h4>
+
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-icon me-2" (click)="themeService.toggleTheme()">
+            <i
+              class="bi fs-5"
+              [ngClass]="
+                themeService.isDark()
+                  ? 'bi-sun-fill text-warning'
+                  : 'bi-moon-stars-fill text-primary'
+              "
+            ></i>
+          </button>
+          <div
+            class="vr mx-2 text-secondary opacity-25 d-none d-md-block"
+            style="height: 30px"
+          ></div>
+          <div class="d-flex align-items-center gap-3 ps-2">
+            <div class="text-end d-none d-md-block">
+              <p class="m-0 small fw-bold text-base">{{ userName }}</p>
+              <p class="m-0 x-small text-primary fw-bold">{{ userRole }}</p>
+            </div>
+            <div class="avatar-circle shadow-sm">
+              <i class="bi bi-person-fill text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4 flex-grow-1">
+      <div class="row g-4 mb-5">
+        <div class="col-md-3" *ngFor="let stat of stats">
+          <div class="card shadow-sm h-100 p-3 stats-card">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted mb-1 small text-uppercase fw-bold">{{ stat.title }}</p>
+                <h2 class="fw-bold mb-0">{{ stat.value }}</h2>
+              </div>
+              <div
+                class="icon-box rounded-3 bg-{{ stat.color }} bg-opacity-10 text-{{
+                  stat.color
+                }} p-3"
+              >
+                <i class="bi {{ stat.icon }} fs-4"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="card shadow-sm">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+              <h6 class="m-0 fw-bold">
+                {{
+                  userRole.includes('ADMIN') ? 'Todos los Envíos Recientes' : 'Mis Envíos Recientes'
+                }}
+              </h6>
+              <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver todos</button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th class="ps-4">Tracking ID</th>
+                      <th>Destino</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                      <th *ngIf="userRole.includes('ADMIN')" class="text-center">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let order of recentOrders">
+                      <td class="ps-4 fw-bold text-primary">{{ order.codigoRastreo }}</td>
+                      <td>{{ order.direccionEntrega }}</td>
+                      <td>
+                        <span
+                          class="badge border"
+                          [ngClass]="{
+                            'bg-success-subtle text-success border-success':
+                              order.estado === 'ENTREGADO',
+                            'bg-warning-subtle text-warning border-warning':
+                              order.estado === 'EN_RUTA' || order.estado === 'EN_ALMACEN',
+                            'bg-primary-subtle text-primary border-primary':
+                              order.estado === 'PENDIENTE' || order.estado === 'PENDIENTE_RECOJO',
+                          }"
+                        >
+                          {{ order.estado }}
+                        </span>
+                      </td>
+                      <td>{{ order.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</td>
+
+                      <td *ngIf="userRole.includes('ADMIN')" class="text-center">
+                        <button
+                          class="btn btn-sm btn-primary fw-bold rounded-pill"
+                          *ngIf="order.estado !== 'ENTREGADO'"
+                          (click)="avanzarEstado(order)"
+                        >
+                          <i class="bi bi-arrow-right-circle"></i> Avanzar
+                        </button>
+                        <span *ngIf="order.estado === 'ENTREGADO'" class="text-muted small fw-bold">
+                          <i class="bi bi-check2-all"></i> Finalizado
+                        </span>
+                      </td>
+                    </tr>
+                    <tr *ngIf="recentOrders.length === 0">
+                      <td
+                        [attr.colspan]="userRole.includes('ADMIN') ? 5 : 4"
+                        class="text-center text-muted py-4"
+                      >
+                        <i class="bi bi-box2 me-2"></i> Aún no tienes envíos registrados.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div
+            class="card shadow-sm mb-4 bg-primary text-white p-2"
+            *ngIf="!userRole.includes('ADMIN')"
+          >
+            <div class="card-body text-center">
+              <i class="bi bi-house-up fs-1 mb-3"></i>
+              <h5 class="fw-bold">¿Envío desde casa?</h5>
+              <p class="small opacity-75">Solicita un recojo y nosotros vamos por tu paquete.</p>
+              <button
+                routerLink="/nueva-orden"
+                class="btn btn-light text-primary w-100 fw-bold rounded-3 py-2 mt-2 hover-scale"
+              >
+                Solicitar Recojo
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="card shadow-sm mb-4 bg-dark text-white p-2"
+            *ngIf="userRole.includes('ADMIN')"
+          >
+            <div class="card-body text-center">
+              <i class="bi bi-shop fs-1 mb-3"></i>
+              <h5 class="fw-bold">Atención en Agencia</h5>
+              <p class="small opacity-75">Registra un nuevo paquete recibido en ventanilla.</p>
+              <button
+                routerLink="/nueva-orden"
+                class="btn btn-primary w-100 fw-bold rounded-3 py-2 mt-2 hover-scale border-0"
+              >
+                Crear Orden Ahora
+              </button>
+            </div>
+          </div>
+
+          <div class="card shadow-sm p-2">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">Soporte Técnico</h6>
+              <div class="d-flex align-items-center">
+                <div class="icon-box bg-success bg-opacity-10 text-success me-3">
+                  <i class="bi bi-whatsapp"></i>
+                </div>
+                <div>
+                  <p class="mb-0 fw-bold">Chat en Vivo</p>
+                  <small class="text-muted">Estamos disponibles 24/7</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <app-footer></app-footer>
+  </div>
+</div>

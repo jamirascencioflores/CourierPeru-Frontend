@@ -1,0 +1,309 @@
+<nav class="navbar navbar-expand-lg fixed-top bg-body border-bottom">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+      <i class="bi bi-box-seam-fill text-primary me-2 fs-4"></i> CourierPerú
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-link nav-link" (click)="themeService.toggleTheme()">
+        <i
+          class="bi"
+          [ngClass]="
+            themeService.isDark() ? 'bi-sun-fill text-warning' : 'bi-moon-stars-fill text-dark'
+          "
+        ></i>
+      </button>
+
+      <a routerLink="/login" class="btn btn-primary rounded-pill px-4">
+        Ingresar <i class="bi bi-arrow-right-short"></i>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero-section d-flex align-items-center text-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <span
+          class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill mb-3 px-3 py-2"
+        >
+          🚀 Envíos a todo el Perú en 24h
+        </span>
+        <h1 class="display-3 fw-bold mb-4">
+          Tu paquete, <span class="text-primary">nuestra misión.</span>
+        </h1>
+        <p class="lead text-body-secondary mb-5">
+          La plataforma logística más moderna. Rastrea tus envíos en tiempo real, cotiza al instante
+          y gestiona tus pedidos sin complicaciones.
+        </p>
+
+        <div class="card p-2 shadow-lg rounded-4 mx-auto" style="max-width: 600px">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-0">
+              <i class="bi bi-search"></i>
+            </span>
+
+            <input
+              type="text"
+              class="form-control border-0 shadow-none bg-transparent"
+              placeholder="Ingresa tu número de seguimiento (Ej: ORD-001)"
+              [(ngModel)]="trackingCode"
+              (keyup.enter)="rastrear()"
+            />
+
+            <button class="btn btn-primary rounded-pill px-4" (click)="rastrear()">Rastrear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container mt-5 mb-2" *ngIf="ordenRastreada() || errorRastreo()">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="alert alert-danger text-center shadow-sm rounded-4" *ngIf="errorRastreo()">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> No encontramos ningún paquete con el
+        código <strong>{{ trackingCode }}</strong
+        >.
+      </div>
+
+      <div
+        class="card border-0 shadow-lg p-4 rounded-4"
+        *ngIf="ordenRastreada()"
+        [ngClass]="
+          themeService.isDark() ? 'bg-dark text-white border border-secondary' : 'bg-white'
+        "
+      >
+        <h5 class="fw-bold text-center mb-5 text-primary">Estado de tu Envío</h5>
+
+        <div
+          class="d-flex justify-content-between align-items-center position-relative px-1 px-md-4"
+        >
+          <div
+            class="position-absolute w-100 bg-secondary opacity-25"
+            style="height: 4px; top: 30%; left: 0; z-index: 1"
+          ></div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 mx-auto shadow-sm"
+              style="width: 55px; height: 55px"
+              [ngClass]="ordenRastreada().estado ? 'bg-primary' : 'bg-secondary'"
+            >
+              <i class="bi bi-box-seam fs-4"></i>
+            </div>
+            <p class="small fw-bold mb-0">Registrado</p>
+          </div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 mx-auto shadow-sm"
+              style="width: 55px; height: 55px"
+              [ngClass]="
+                ordenRastreada().estado === 'EN_RUTA' || ordenRastreada().estado === 'ENTREGADO'
+                  ? 'bg-warning text-dark'
+                  : 'bg-secondary bg-opacity-50'
+              "
+            >
+              <i
+                class="bi bi-truck fs-4"
+                [ngClass]="{
+                  'text-white':
+                    ordenRastreada().estado === 'EN_RUTA' ||
+                    ordenRastreada().estado === 'ENTREGADO',
+                }"
+              ></i>
+            </div>
+            <p
+              class="small fw-bold mb-0"
+              [ngClass]="{
+                'text-muted opacity-50':
+                  ordenRastreada().estado === 'PENDIENTE' ||
+                  ordenRastreada().estado === 'PENDIENTE_RECOJO',
+              }"
+            >
+              En Ruta
+            </p>
+          </div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center text-white mb-2 mx-auto shadow-sm"
+              style="width: 55px; height: 55px"
+              [ngClass]="
+                ordenRastreada().estado === 'ENTREGADO'
+                  ? 'bg-success'
+                  : 'bg-secondary bg-opacity-50'
+              "
+            >
+              <i class="bi bi-house-check fs-4"></i>
+            </div>
+            <p
+              class="small fw-bold mb-0"
+              [ngClass]="{ 'text-muted opacity-50': ordenRastreada().estado !== 'ENTREGADO' }"
+            >
+              Entregado
+            </p>
+          </div>
+        </div>
+
+        <hr class="mt-5 mb-4" [ngClass]="{ 'border-secondary': themeService.isDark() }" />
+
+        <div class="row text-center">
+          <div class="col-6">
+            <span
+              class="d-block small"
+              [ngClass]="themeService.isDark() ? 'text-white-50' : 'text-muted'"
+              >Destino:</span
+            >
+            <strong class="fs-6">{{ ordenRastreada().direccionEntrega }}</strong>
+          </div>
+          <div class="col-6">
+            <span
+              class="d-block small"
+              [ngClass]="themeService.isDark() ? 'text-white-50' : 'text-muted'"
+              >Fecha:</span
+            >
+            <strong class="fs-6">{{ ordenRastreada().fechaCreacion | date: 'dd/MM/yyyy' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="py-5">
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-4 hover-effect">
+          <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mb-3">
+            <i class="bi bi-lightning-charge-fill fs-4"></i>
+          </div>
+          <h3>Ultra Rápido</h3>
+          <p class="text-body-secondary">
+            Entregas el mismo día en Lima y 24h en provincias. La velocidad es nuestra prioridad.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-4 hover-effect">
+          <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle mb-3">
+            <i class="bi bi-shield-lock-fill fs-4"></i>
+          </div>
+          <h3>Seguro 100%</h3>
+          <p class="text-body-secondary">
+            Todos los envíos están asegurados. Monitoreo constante desde la recolección hasta la
+            entrega.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm p-4 hover-effect">
+          <div class="icon-box bg-info bg-opacity-10 text-info rounded-circle mb-3">
+            <i class="bi bi-geo-alt-fill fs-4"></i>
+          </div>
+          <h3>Tracking en Vivo</h3>
+          <p class="text-body-secondary">
+            Sigue tu paquete en tiempo real con nuestra tecnología de geolocalización avanzada.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div
+  class="modal fade"
+  id="promoModal"
+  tabindex="-1"
+  aria-labelledby="promoModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <button
+        type="button"
+        class="btn-close position-absolute top-0 end-0 m-3 z-3 bg-white p-2 shadow-sm rounded-circle"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+      ></button>
+
+      <div class="modal-body p-0 text-center bg-dark text-white position-relative">
+        <img
+          src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+          alt="Promoción Courier"
+          class="img-fluid w-100"
+          style="height: 220px; object-fit: cover; opacity: 0.6"
+        />
+
+        <div class="p-4 position-relative" style="margin-top: -40px">
+          <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold shadow-sm">
+            ¡OFERTA EXCLUSIVA! ✈️
+          </span>
+          <h2 class="fw-bold mb-3">Envíos en 24 Horas</h2>
+          <p class="text-white-50 mb-4 px-2">
+            A más de 20 destinos nacionales (Arequipa, Cusco, Iquitos y más) con la seguridad y
+            confianza de siempre.
+          </p>
+
+          <a
+            routerLink="/login"
+            class="btn btn-primary btn-lg rounded-pill w-100 fw-bold shadow hover-scale"
+            data-bs-dismiss="modal"
+          >
+            Registra tu envío AQUÍ <i class="bi bi-cursor-fill ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="card shadow-sm border-0 p-4 mt-4"
+  style="max-width: 400px; margin: auto"
+  [ngClass]="themeService.isDark() ? 'bg-dark text-white border-secondary' : 'bg-light text-dark'"
+>
+  <h4 class="text-primary fw-bold text-center">
+    <i class="bi bi-calculator"></i> Cotizador Rápido
+  </h4>
+  <p class="text-center small" [ngClass]="themeService.isDark() ? 'text-white-50' : 'text-muted'">
+    Descubre cuánto cuesta enviar tu paquete.
+  </p>
+
+  <div class="input-group mb-3">
+    <input
+      type="number"
+      class="form-control"
+      [ngClass]="themeService.isDark() ? 'bg-secondary text-white border-secondary' : ''"
+      [ngModel]="pesoCotizar()"
+      (ngModelChange)="pesoCotizar.set($event)"
+      placeholder="Peso del paquete"
+    />
+    <span
+      class="input-group-text"
+      [ngClass]="themeService.isDark() ? 'bg-secondary text-white border-secondary' : ''"
+      >Kg</span
+    >
+  </div>
+
+  <button
+    class="btn btn-primary w-100 fw-bold"
+    (click)="cotizarEnvio()"
+    [disabled]="cargandoCosto() || !pesoCotizar()"
+  >
+    {{ cargandoCosto() ? 'Calculando...' : 'Cotizar Ahora' }}
+  </button>
+
+  <div class="mt-3 text-center" *ngIf="costoEstimado() !== null">
+    <h5 class="mb-0">Costo Estimado:</h5>
+    <h2 class="fw-bold" [ngClass]="themeService.isDark() ? 'text-info' : 'text-success'">
+      S/ {{ costoEstimado() }}
+    </h2>
+  </div>
+</div>
+
+<br />
+<br />

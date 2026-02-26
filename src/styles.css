@@ -1,1 +1,165 @@
-/* You can add global styles to this file, and also import other style files */
+/* ------------------------------
+   Global base
+------------------------------ */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.container-fluid {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------
+   Variables de tema (custom)
+   Usa estas variables en tus .css de páginas
+------------------------------ */
+
+/* Tema claro */
+:root[data-bs-theme='light'] {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* Tema oscuro */
+:root[data-bs-theme='dark'] {
+  --bg: #0f172a; /* slate-900 */
+  --surface: #0b1220; /* slate-950 */
+  --card: #111827; /* slate-800 */
+  --border: #1f2937; /* slate-700 */
+  --text: #e2e8f0; /* gray-200 */
+  --text-muted: #9ca3af; /* gray-400 */
+  --primary: #3b82f6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* Aplica fondo/texto base según el tema */
+:root[data-bs-theme] body {
+  background-color: var(--bg) !important;
+  color: var(--text);
+}
+
+/* ------------------------------
+   Utilidades globales reutilizables
+   (úsalas en el HTML o en los CSS de páginas)
+------------------------------ */
+.bg-surface {
+  background: var(--surface) !important;
+}
+.bg-card {
+  background: var(--card) !important;
+}
+.text-base {
+  color: var(--text) !important;
+}
+.text-muted {
+  color: var(--text-muted) !important;
+}
+.border-base {
+  border-color: var(--border) !important;
+}
+
+/* Tarjetas/paneles genéricos */
+.card,
+.panel,
+.metric-card {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Tablas */
+.table {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.table thead th {
+  color: var(--text-muted);
+  border-bottom-color: var(--border);
+}
+.table > :not(caption) > * > * {
+  background: transparent; /* evita celdas blancas */
+  box-shadow: inset 0 0 0 9999px transparent;
+}
+.table tbody tr + tr {
+  border-top: 1px solid var(--border);
+}
+
+/* Badges (si usas clases personalizadas) */
+.badge-success {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  color: var(--success);
+}
+.badge-warning {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  color: var(--warning);
+}
+.badge-danger {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+}
+
+.navbar.bg-body {
+  color: var(--text);
+}
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: var(--text);
+}
+.navbar .nav-link:hover {
+  color: var(--primary);
+}
+
+/* Fuerza a que el tag sea bloque y tenga división visible */
+app-footer {
+  display: block;
+  width: 100%;
+}
+
+.landing-footer {
+  background: var(--surface);
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem; /* asegura altura visible */
+  padding-bottom: 1rem;
+}
+/* dashboard.css o styles.css */
+.landing-footer .container {
+  padding-left: 1.5rem; /* = .px-4 (Bootstrap) */
+  padding-right: 1.5rem; /* = .px-4 */
+}
+
+@media print {
+  .sidebar,
+  .navbar {
+    display: none !important;
+  }
+}
