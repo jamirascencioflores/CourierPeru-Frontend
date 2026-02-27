@@ -12,6 +12,14 @@
         <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
       </a>
 
+      <a
+        routerLink="/gestion-ordenes"
+        class="list-group-item list-group-item-action bg-transparent hover-light"
+      >
+        <i class="bi bi-boxes"></i>
+        <span>{{ userRole.includes('ADMIN') ? 'Gestión de Órdenes' : 'Mis Órdenes' }}</span>
+      </a>
+
       <ng-container
         *ngIf="userRole === 'CLIENTE' || userRole === 'USER' || userRole === 'ROLE_USER'"
       >
@@ -35,12 +43,6 @@
           class="list-group-item list-group-item-action bg-transparent hover-light"
         >
           <i class="bi bi-plus-circle"></i> <span>Nueva Orden (Agencia)</span>
-        </a>
-        <a
-          routerLink="/gestion-ordenes"
-          class="list-group-item list-group-item-action bg-transparent hover-light"
-        >
-          <i class="bi bi-boxes"></i> <span>Gestión de Órdenes</span>
         </a>
         <a
           routerLink="/reportes"
@@ -137,7 +139,7 @@
                   userRole.includes('ADMIN') ? 'Todos los Envíos Recientes' : 'Mis Envíos Recientes'
                 }}
               </h6>
-              <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver todos</button>
+              <button routerLink="/gestion-ordenes" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver todos</button>
             </div>
             <div class="card-body p-0">
               <div class="table-responsive">

@@ -5,6 +5,7 @@
       <span class="fw-semibold">Regresar al Inicio</span>
     </a>
   </div>
+
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold text-primary"><i class="bi bi-boxes me-2"></i> Gestión de Órdenes</h2>
 
@@ -17,7 +18,7 @@
         class="form-control border-start-0 shadow-none"
         placeholder="Buscar por Tracking o DNI..."
         [ngModel]="terminoBusqueda()"
-        (ngModelChange)="terminoBusqueda.set($event)"
+        (ngModelChange)="terminoBusqueda.set($event); paginaActual.set(1)"
       />
     </div>
   </div>
@@ -43,7 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let orden of ordenesFiltradas()">
+          <tr *ngFor="let orden of ordenesPaginadas()">
             <td class="ps-4">
               <span class="fw-bold text-primary">{{ orden.codigoRastreo }}</span
               ><br />
@@ -63,25 +64,52 @@
               </span>
             </td>
             <td class="text-center pe-4">
-              <button
-                class="btn btn-sm fw-bold rounded-pill shadow-sm"
-                [ngClass]="
-                  orden.estado === 'ENTREGADO' ? 'btn-outline-secondary disabled' : 'btn-primary'
-                "
-                (click)="avanzarEstado(orden.id)"
-                [disabled]="orden.estado === 'ENTREGADO'"
-              >
-                <i
-                  class="bi"
+              <div class="d-flex justify-content-center align-items-center gap-2">
+                <button
+                  *ngIf="userRole.includes('ADMIN')"
+                  class="btn btn-sm fw-bold rounded-pill shadow-sm"
                   [ngClass]="
-                    orden.estado === 'ENTREGADO' ? 'bi-check2-all' : 'bi-arrow-right-circle'
+                    orden.estado === 'ENTREGADO' ? 'btn-outline-secondary disabled' : 'btn-primary'
                   "
-                ></i>
-                {{ orden.estado === 'ENTREGADO' ? 'Finalizado' : 'Avanzar' }}
-              </button>
+                  (click)="avanzarEstado(orden)"
+                  [disabled]="orden.estado === 'ENTREGADO'"
+                >
+                  <i
+                    class="bi"
+                    [ngClass]="
+                      orden.estado === 'ENTREGADO' ? 'bi-check2-all' : 'bi-arrow-right-circle'
+                    "
+                  ></i>
+                  {{ orden.estado === 'ENTREGADO' ? 'Finalizado' : 'Avanzar' }}
+                </button>
+
+                <ng-container *ngIf="puedeEditarOEliminar(orden)">
+                  <button
+                    class="btn btn-sm btn-outline-primary shadow-sm rounded-circle"
+                    title="Editar Orden"
+                    (click)="abrirModalEditar(orden)"
+                  >
+                    <i class="bi bi-pencil-fill"></i>
+                  </button>
+
+                  <button
+                    class="btn btn-sm btn-outline-danger shadow-sm rounded-circle"
+                    (click)="eliminarOrden(orden.id)"
+                    title="Eliminar Orden"
+                  >
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </ng-container>
+
+                <span
+                  *ngIf="!userRole.includes('ADMIN') && !puedeEditarOEliminar(orden)"
+                  class="text-muted small fw-bold bg-light px-2 py-1 rounded-pill"
+                >
+                  <i class="bi bi-lock-fill"></i> No editable
+                </span>
+              </div>
             </td>
           </tr>
-
           <tr *ngIf="ordenesFiltradas().length === 0">
             <td colspan="6" class="text-center py-5 text-muted">
               <i class="bi bi-inbox fs-1 d-block mb-2"></i>
@@ -90,6 +118,134 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="card-footer bg-white border-top py-3 px-4" *ngIf="ordenesFiltradas().length > 0">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+        <div class="text-muted small fw-medium">
+          Mostrando
+          {{ Math.min(ordenesFiltradas().length, (paginaActual() - 1) * itemsPorPagina + 1) }} -
+          {{ Math.min(paginaActual() * itemsPorPagina, ordenesFiltradas().length) }}
+          de {{ ordenesFiltradas().length }} órdenes
+        </div>
+
+        <nav *ngIf="totalPaginas() > 1">
+          <ul class="pagination pagination-sm mb-0 shadow-sm">
+            <li class="page-item" [class.disabled]="paginaActual() === 1">
+              <button class="page-link border-0 px-3" (click)="cambiarPagina(paginaActual() - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+            </li>
+
+            <li
+              class="page-item"
+              *ngFor="let p of [].constructor(totalPaginas()); let i = index"
+              [class.active]="paginaActual() === i + 1"
+            >
+              <button class="page-link border-0 px-3" (click)="cambiarPagina(i + 1)">
+                {{ i + 1 }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="paginaActual() === totalPaginas()">
+              <button class="page-link border-0 px-3" (click)="cambiarPagina(paginaActual() + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="modalEditarOrden"
+  tabindex="-1"
+  aria-labelledby="modalEditarLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-primary text-white border-0 rounded-top-4">
+        <h5 class="modal-title fw-bold" id="modalEditarLabel">
+          <i class="bi bi-pencil-square me-2"></i>Editar Orden {{ ordenEnEdicion?.codigoRastreo }}
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          id="btnCerrarModalEdicion"
+        ></button>
+      </div>
+      <div class="modal-body p-4">
+        <form (ngSubmit)="guardarEdicion()" #editForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary small">Dirección de Recojo</label>
+            <input
+              type="text"
+              class="form-control"
+              name="recojo"
+              [(ngModel)]="ordenEnEdicion.direccionRecojo"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary small">Dirección de Entrega</label>
+            <input
+              type="text"
+              class="form-control"
+              name="entrega"
+              [(ngModel)]="ordenEnEdicion.direccionEntrega"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold text-secondary small">Peso Paquete (Kg)</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                name="peso"
+                [(ngModel)]="ordenEnEdicion.pesoPaquete"
+                [disabled]="!userRole.includes('ADMIN')"
+                min="0.1"
+                step="0.1"
+                required
+              />
+              <span class="input-group-text">kg</span>
+            </div>
+
+            <small *ngIf="!userRole.includes('ADMIN')" class="text-danger mt-1 d-block">
+              <i class="bi bi-info-circle-fill"></i> Para editar el peso contacte al soporte de
+              agencia.
+            </small>
+
+            <small
+              *ngIf="userRole.includes('ADMIN')"
+              class="text-warning text-dark mt-1 d-block fw-bold"
+            >
+              <i class="bi bi-exclamation-triangle-fill"></i> Cambiar el peso recalculará el costo
+              automáticamente.
+            </small>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary fw-bold py-2 rounded-3"
+              [disabled]="guardandoEdicion || !editForm.valid"
+            >
+              <span *ngIf="guardandoEdicion" class="spinner-border spinner-border-sm me-2"></span>
+              {{ guardandoEdicion ? 'Actualizando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

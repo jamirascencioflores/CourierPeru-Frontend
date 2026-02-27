@@ -11,8 +11,9 @@
     <div class="col-lg-5">
       <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
-          <h5 class="fw-bold mb-4">
-            <i class="bi bi-plus-circle-fill text-primary me-2"></i>Agregar Nueva Dirección
+          <h5 class="fw-bold mb-4 text-primary">
+            <i class="bi" [ngClass]="modoEdicion ? 'bi-pencil-square' : 'bi-plus-circle-fill'"></i>
+            {{ modoEdicion ? ' Editar Dirección' : ' Agregar Nueva Dirección' }}
           </h5>
 
           <form (ngSubmit)="guardarDireccion()">
@@ -100,19 +101,36 @@
               <label for="referencia">Referencia (Opcional)</label>
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-primary w-100 py-3 rounded-3 fw-bold"
-              [disabled]="
-                isSubmitting ||
-                !nuevaDireccion.alias ||
-                !nuevaDireccion.calle ||
-                !nuevaDireccion.distrito
-              "
-            >
-              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
-              {{ isSubmitting ? 'Guardando...' : 'Guardar Dirección' }}
-            </button>
+            <div class="d-flex gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary flex-grow-1 py-3 rounded-3 fw-bold"
+                [disabled]="
+                  isSubmitting ||
+                  !nuevaDireccion.alias ||
+                  !nuevaDireccion.calle ||
+                  !nuevaDireccion.distrito
+                "
+              >
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                {{
+                  isSubmitting
+                    ? 'Procesando...'
+                    : modoEdicion
+                      ? 'Actualizar Dirección'
+                      : 'Guardar Dirección'
+                }}
+              </button>
+
+              <button
+                *ngIf="modoEdicion"
+                type="button"
+                class="btn btn-outline-secondary py-3 rounded-3 fw-bold px-4"
+                (click)="cancelarEdicion()"
+              >
+                Cancelar
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -132,17 +150,34 @@
             <div class="card-body p-4">
               <div class="d-flex align-items-center mb-3">
                 <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3">
-                  <i class="bi bi-house-door-fill fs-5"></i>
+                  <i
+                    class="bi fs-5"
+                    [ngClass]="
+                      dir.alias.toLowerCase().includes('casa')
+                        ? 'bi-house-door-fill'
+                        : 'bi-building-fill'
+                    "
+                  ></i>
                 </div>
                 <h5 class="fw-bold mb-0 text-truncate flex-grow-1">{{ dir.alias }}</h5>
 
-                <button
-                  class="btn btn-outline-danger border-0 btn-sm"
-                  (click)="eliminarDireccion(dir.id!)"
-                  title="Eliminar dirección"
-                >
-                  <i class="bi bi-trash-fill fs-5"></i>
-                </button>
+                <div class="d-flex gap-2">
+                  <button
+                    class="btn btn-outline-primary border-0 btn-sm"
+                    (click)="cargarParaEditar(dir)"
+                    title="Editar dirección"
+                  >
+                    <i class="bi bi-pencil-fill fs-5"></i>
+                  </button>
+
+                  <button
+                    class="btn btn-outline-danger border-0 btn-sm"
+                    (click)="eliminarDireccion(dir.id!)"
+                    title="Eliminar dirección"
+                  >
+                    <i class="bi bi-trash-fill fs-5"></i>
+                  </button>
+                </div>
               </div>
 
               <p class="mb-1 text-secondary">

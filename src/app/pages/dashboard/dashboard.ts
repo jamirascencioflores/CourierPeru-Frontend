@@ -15,15 +15,16 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./dashboard.css'],
 })
 export class DashboardComponent implements OnInit {
-  userName: string = 'Usuario Demo';
+  userName: string = 'Usuario';
   userRole: string = 'Cliente';
   recentOrders: any[] = [];
 
+  // Valores iniciales en 0
   stats = [
-    { title: 'Envíos Activos', value: '12', icon: 'bi-truck', color: 'primary' },
-    { title: 'Entregados', value: '45', icon: 'bi-check-circle', color: 'success' },
-    { title: 'Pendientes', value: '3', icon: 'bi-clock', color: 'warning' },
-    { title: 'Gasto Mensual', value: 'S/ 340', icon: 'bi-wallet2', color: 'info' },
+    { title: 'Envíos Activos', value: '0', icon: 'bi-truck', color: 'primary' },
+    { title: 'Entregados', value: '0', icon: 'bi-check-circle', color: 'success' },
+    { title: 'Pendientes', value: '0', icon: 'bi-clock', color: 'warning' },
+    { title: 'Gasto Total', value: 'S/ 0.00', icon: 'bi-wallet2', color: 'info' },
   ];
 
   constructor(
@@ -36,13 +37,60 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.userRole = this.authService.getRoleFromToken();
+    this.extraerNombreDelToken();
     this.cargarOrdenes();
+  }
+
+  extraerNombreDelToken() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        let rawName = payload.sub || payload.userName || 'Usuario';
+        this.userName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+      } catch (e) {
+        console.error('Error decodificando token', e);
+      }
+    }
   }
 
   cargarOrdenes() {
     this.orderService.getRecentOrders().subscribe({
-      next: (data: any) => {
-        this.recentOrders = data;
+      next: (data: any[]) => {
+        // 1. Limitamos a los 10 más recientes para el Dashboard
+        this.recentOrders = data.sort((a, b) => b.id - a.id).slice(0, 10);
+
+        // 2. Calculamos las estadísticas reales basándonos en TODA la data recibida
+        const activas = data.filter((o: any) => o.estado === 'EN_RUTA').length;
+        const entregadas = data.filter((o: any) => o.estado === 'ENTREGADO').length;
+        const pendientes = data.filter(
+          (o: any) => o.estado === 'PENDIENTE' || o.estado === 'PENDIENTE_RECOJO',
+        ).length;
+        const gastoTotal = data.reduce((sum: number, o: any) => sum + (o.costoEnvio || 0), 0);
+
+        // 3. Actualizamos el array 'stats' que usa tu HTML
+        this.stats = [
+          {
+            title: 'Envíos Activos',
+            value: activas.toString(),
+            icon: 'bi-truck',
+            color: 'primary',
+          },
+          {
+            title: 'Entregados',
+            value: entregadas.toString(),
+            icon: 'bi-check-circle',
+            color: 'success',
+          },
+          { title: 'Pendientes', value: pendientes.toString(), icon: 'bi-clock', color: 'warning' },
+          {
+            title: 'Gasto Total',
+            value: `S/ ${gastoTotal.toFixed(2)}`,
+            icon: 'bi-wallet2',
+            color: 'info',
+          },
+        ];
+
         this.cdr.detectChanges();
       },
       error: (err: any) => console.error('Error al cargar órdenes', err),
@@ -54,29 +102,26 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  // ✨ Actualizado para usar el nuevo updateEstado
   avanzarEstado(order: any) {
     let nuevoEstado = 'EN_RUTA';
     if (order.estado === 'EN_RUTA') nuevoEstado = 'ENTREGADO';
-    if (order.estado === 'ENTREGADO') return; // Ya no avanza más
+    if (order.estado === 'ENTREGADO') return;
 
     this.orderService.updateEstado(order.id, nuevoEstado).subscribe({
       next: (res: any) => {
-        order.estado = res.estado;
-        this.recentOrders = [...this.recentOrders];
-        this.cdr.detectChanges();
+        // ✨ Recargamos todo para que se actualicen las tarjetas también
+        this.cargarOrdenes();
       },
       error: (err: any) => console.error('Error al avanzar estado', err),
     });
   }
 
-  // ✨ Nuevo método para el botón de cancelar/eliminar del HTML
   eliminarOrden(id: number) {
     if (confirm('¿Estás seguro de que deseas cancelar esta orden?')) {
       this.orderService.eliminarOrden(id).subscribe({
         next: () => {
-          this.recentOrders = this.recentOrders.filter((o) => o.id !== id);
-          this.cdr.detectChanges();
+          // ✨ Recargamos todo para actualizar las tarjetas y la tabla
+          this.cargarOrdenes();
         },
         error: (err: any) => {
           console.error('Error al eliminar orden', err);

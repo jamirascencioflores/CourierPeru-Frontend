@@ -15,6 +15,7 @@ export class MisDireccionesComponent implements OnInit {
   // ✨ Declaraciones vitales para quitar los errores de "Property does not exist"
   direcciones: Address[] = [];
   isSubmitting: boolean = false;
+  modoEdicion: boolean = false;
 
   // Datos maestros de Ubigeo
   ubigeoData: any[] = [];
@@ -88,31 +89,36 @@ export class MisDireccionesComponent implements OnInit {
 
   guardarDireccion() {
     this.isSubmitting = true;
-    this.addressService.agregarDireccion(this.nuevaDireccion).subscribe({
-      next: (res) => {
-        console.log('Dirección guardada:', res);
-        this.isSubmitting = false;
 
-        // ✨ LIMPIAMOS EL FORMULARIO
-        this.nuevaDireccion = {
-          alias: '',
-          calle: '',
-          departamento: '',
-          provincia: '',
-          distrito: '',
-          referencia: '',
-        };
-
-        // ✨ RECARGAMOS LA LISTA PARA QUE APAREZCA LA NUEVA CARD
-        this.cargarDirecciones();
-
-        alert('Dirección agregada con éxito');
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        console.error('Error al guardar', err);
-      },
-    });
+    if (this.modoEdicion && this.nuevaDireccion.id) {
+      // MODO ACTUALIZAR (PUT)
+      this.addressService.editarDireccion(this.nuevaDireccion.id, this.nuevaDireccion).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.cancelarEdicion();
+          this.cargarDirecciones(); // Recargar la lista
+          alert('Dirección actualizada con éxito');
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          console.error('Error al actualizar', err);
+        },
+      });
+    } else {
+      // MODO GUARDAR NUEVO (POST) - Tu código anterior
+      this.addressService.agregarDireccion(this.nuevaDireccion).subscribe({
+        next: (res) => {
+          this.isSubmitting = false;
+          this.cancelarEdicion();
+          this.cargarDirecciones();
+          alert('Dirección agregada con éxito');
+        },
+        error: (err) => {
+          this.isSubmitting = false;
+          console.error('Error al guardar', err);
+        },
+      });
+    }
   }
 
   eliminarDireccion(id: number) {
@@ -131,5 +137,30 @@ export class MisDireccionesComponent implements OnInit {
         },
       });
     }
+  }
+
+  cargarParaEditar(dir: Address) {
+    // Copiamos el objeto para no modificar la tarjeta original hasta que se guarde
+    this.nuevaDireccion = { ...dir };
+    this.modoEdicion = true;
+
+    // Disparamos manualmente los cambios de combos para que se llenen las listas
+    this.onDeptoChange();
+    this.onProvinciaChange();
+
+    // Subimos el scroll hacia arriba suavemente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cancelarEdicion() {
+    this.nuevaDireccion = {
+      alias: '',
+      calle: '',
+      departamento: '',
+      provincia: '',
+      distrito: '',
+      referencia: '',
+    };
+    this.modoEdicion = false;
   }
 }

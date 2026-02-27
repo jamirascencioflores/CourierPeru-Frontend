@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-gestion-ordenes',
   standalone: true,
@@ -12,104 +14,130 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./gestion-ordenes.css'],
 })
 export class GestionOrdenesComponent implements OnInit {
-  private orderService = inject(OrderService); // public themeService = inject(ThemeServicemeService); // Descomenta si usas dark mode
+  private orderService = inject(OrderService);
 
-  // Señales
+  // --- Señales de Datos ---
   ordenes = signal<any[]>([]);
   terminoBusqueda = signal<string>('');
   cargando = signal<boolean>(true);
 
-  // Señal Computada: Filtra automáticamente por Tracking o DNI
+  // --- Señales de Paginación ---
+  paginaActual = signal<number>(1);
+  itemsPorPagina = 10;
+  protected readonly Math = Math; // Para usar en el HTML
+
+  ordenEnEdicion: any = {};
+  guardandoEdicion = false;
+  userRole: string = 'USER';
+
+  // 1. Primero filtramos por búsqueda
   ordenesFiltradas = computed(() => {
     const termino = this.terminoBusqueda().toLowerCase();
-    if (!termino) return this.ordenes();
+    const todas = this.ordenes();
 
-    return this.ordenes().filter((orden) => {
+    if (!termino) return todas;
+
+    return todas.filter((orden) => {
       const tracking = orden.codigoRastreo ? String(orden.codigoRastreo).toLowerCase() : '';
       const dni = orden.dniCliente ? String(orden.dniCliente).toLowerCase() : '';
-
       return tracking.includes(termino) || dni.includes(termino);
     });
   });
 
+  // 2. Luego paginamos el resultado filtrado
+  ordenesPaginadas = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+    return this.ordenesFiltradas().slice(inicio, fin);
+  });
+
+  // 3. Calculamos total de páginas
+  totalPaginas = computed(() => {
+    return Math.ceil(this.ordenesFiltradas().length / this.itemsPorPagina);
+  });
+
   ngOnInit(): void {
+    this.extraerRolDelToken();
     this.cargarOrdenes();
+  }
+
+  cambiarPagina(nuevaPagina: number) {
+    if (nuevaPagina >= 1 && nuevaPagina <= this.totalPaginas()) {
+      this.paginaActual.set(nuevaPagina);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  extraerRolDelToken() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const payloadStr = JSON.stringify(payload).toUpperCase();
+        this.userRole = payloadStr.includes('ADMIN') ? 'ADMIN' : 'USER';
+      } catch (e) {
+        console.error('Error decodificando token', e);
+      }
+    }
   }
 
   cargarOrdenes() {
     this.cargando.set(true);
     this.orderService.obtenerTodasLasOrdenes().subscribe({
-      // ✨ Agregamos ": any[]" a data
       next: (data: any[]) => {
-        // ✨ Agregamos ": any" a las variables a y b
-        const ordenadas = data.sort((a: any, b: any) => b.id - a.id);
-        this.ordenes.set(ordenadas);
+        this.ordenes.set(data.sort((a, b) => b.id - a.id));
+        this.paginaActual.set(1);
         this.cargando.set(false);
       },
-      // ✨ Agregamos ": any" a err
-      error: (err: any) => {
-        console.error('Error al cargar órdenes', err);
-        this.cargando.set(false);
+      error: () => this.cargando.set(false),
+    });
+  }
+
+  puedeEditarOEliminar(orden: any): boolean {
+    return this.userRole === 'ADMIN' || (this.userRole === 'USER' && orden.estado === 'PENDIENTE');
+  }
+
+  abrirModalEditar(orden: any) {
+    this.ordenEnEdicion = { ...orden };
+    const modalElement = document.getElementById('modalEditarOrden');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  guardarEdicion() {
+    this.guardandoEdicion = true;
+    this.orderService.editarOrden(this.ordenEnEdicion.id, this.ordenEnEdicion).subscribe({
+      next: (res: any) => {
+        this.ordenes.update((list) => list.map((o) => (o.id === res.id ? res : o)));
+        this.guardandoEdicion = false;
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarOrden'));
+        modal?.hide();
       },
+      error: () => (this.guardandoEdicion = false),
     });
   }
 
   avanzarEstado(order: any) {
-    // Definimos la lógica de avance de estados
-    let nuevoEstado = 'EN_RUTA';
-    if (order.estado === 'EN_RUTA') nuevoEstado = 'ENTREGADO';
-    if (order.estado === 'ENTREGADO') {
-      alert('Esta orden ya ha sido entregada.');
-      return;
-    }
-
-    if (confirm(`¿Estás seguro de cambiar el estado a ${nuevoEstado}? Se notificará al cliente.`)) {
-      // ✨ Usamos updateEstado en lugar de avanzarEstado
-      this.orderService.updateEstado(order.id, nuevoEstado).subscribe({
-        next: (ordenActualizada: any) => {
-          // Actualizamos la lista usando signals o arreglos normales según tu código
-          const listaActualizada = this.ordenes().map((o: any) =>
-            o.id === order.id ? ordenActualizada : o,
-          );
-          this.ordenes.set(listaActualizada);
-          alert('✅ Estado actualizado y notificación enviada.');
-        },
-        error: (err: any) => {
-          console.error(err);
-          alert('❌ Hubo un error al actualizar el estado: ' + (err.error || 'Acceso denegado'));
-        },
-      });
-    }
+    let nuevoEstado = order.estado === 'PENDIENTE' ? 'EN_RUTA' : 'ENTREGADO';
+    this.orderService.updateEstado(order.id, nuevoEstado).subscribe({
+      next: (res: any) =>
+        this.ordenes.update((list) => list.map((o) => (o.id === order.id ? res : o))),
+    });
   }
 
-  // ✨ Tip extra: Agrega el método para eliminar aquí también si lo necesitas
   eliminarOrden(id: number) {
-    if (confirm('¿Estás seguro de eliminar esta orden permanentemente?')) {
+    if (confirm('¿Eliminar esta orden?')) {
       this.orderService.eliminarOrden(id).subscribe({
-        next: () => {
-          const listaActualizada = this.ordenes().filter((o: any) => o.id !== id);
-          this.ordenes.set(listaActualizada);
-          alert('✅ Orden eliminada correctamente.');
-        },
-        error: (err: any) => {
-          console.error(err);
-          alert('❌ No se pudo eliminar la orden.');
-        },
+        next: () => this.ordenes.update((list) => list.filter((o) => o.id !== id)),
       });
     }
   }
 
-  // Método auxiliar para pintar colores según el estado
   getColorEstado(estado: string): string {
-    switch (estado) {
-      case 'PENDIENTE':
-        return 'bg-secondary';
-      case 'EN_RUTA':
-        return 'bg-warning text-dark';
-      case 'ENTREGADO':
-        return 'bg-success';
-      default:
-        return 'bg-primary';
-    }
+    if (estado === 'PENDIENTE') return 'bg-secondary';
+    if (estado === 'EN_RUTA') return 'bg-warning text-dark';
+    return 'bg-success';
   }
 }

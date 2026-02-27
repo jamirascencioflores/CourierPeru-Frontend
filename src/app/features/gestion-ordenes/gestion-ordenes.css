@@ -1,0 +1,24 @@
+.pagination {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.page-link {
+  border: none;
+  color: #4e73df;
+  padding: 8px 16px;
+  transition: all 0.2s;
+}
+
+.page-item.active .page-link {
+  background-color: #4e73df;
+  color: white;
+}
+
+.page-link:hover:not(.active) {
+  background-color: #f8f9fc;
+}
+
+.card-footer {
+  background-color: #fff !important;
+}

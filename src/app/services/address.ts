@@ -38,7 +38,7 @@ export class AddressService {
     return {
       headers: new HttpHeaders()
         .set('Authorization', `Bearer ${token}`)
-        .set('X-User-Name', username), 
+        .set('X-User-Name', username),
     };
   }
 
@@ -52,5 +52,9 @@ export class AddressService {
 
   eliminarDireccion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, this.getHeaders());
+  }
+
+  editarDireccion(id: number, direccion: Address): Observable<Address> {
+    return this.http.put<Address>(`${this.apiUrl}/${id}`, direccion, this.getHeaders());
   }
 }
